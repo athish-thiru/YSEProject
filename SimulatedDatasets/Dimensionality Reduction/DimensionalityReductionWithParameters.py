@@ -10,10 +10,6 @@ new_df2 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_Ia_modified.csv", ind
 new_df3 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_SESNe_modified.csv", index_col=0)
 
 
-def phasecut(df, n):
-    df["before" + str(n) + "Days"] = [1 if row[1][0] < n else 0 for row in df.iterrows()]
-
-
 def tsne_embedder(data, perplexity, rate):
     method = TSNE(n_components=2, learning_rate=rate, perplexity=perplexity)
     X = data[:, 1:8].astype('float')
@@ -33,13 +29,7 @@ def umap_embedder(data,n_neighbours, min_dist):
 
 
 def umap_and_tsne_plotter(new_df, title):
-    day = 3
-    phasecut(new_df, day)
-
     data = new_df.to_numpy()
-    X1 = data[:, 1:8].astype('float')
-    y1 = data[:, 9].astype('float')
-    label = data[:, 0].astype('float')
 
     fig, ax = plt.subplots(ncols=3, nrows=2, figsize=(12, 10))
     learning_rates = [10, 200, 400, 600, 800, 1000]
@@ -83,7 +73,7 @@ def umap_and_tsne_plotter(new_df, title):
     fig, ax = plt.subplots(ncols=3, nrows=2, figsize=(12, 10))
     for i in range(2):
         for j in range(3):
-            X_embedded = umap_embedder(data, 12, min_dists[(3*i) + j])
+            X_embedded = umap_embedder(data, 15, min_dists[(3*i) + j])
             ax[i][j].set_xlim(-15, 15)
             ax[i][j].set_ylim(-15, 15)
             sns.scatterplot(data=X_embedded, x=X_embedded[:, 1], y=X_embedded[:, 2], hue=X_embedded[:, 0], ax=ax[i][j])
@@ -92,10 +82,8 @@ def umap_and_tsne_plotter(new_df, title):
     plt.savefig("UMAP on " + title + " dataset with Minimum Distance variation.jpg")
 
 
-dataframes = [new_df2, new_df3]
-titles = ["Ia", "SESNe"]
+dataframes = [new_df1, new_df2, new_df3]
+titles = ["CC", "Ia", "SESNe"]
 
-# for (dataframe, title) in zip(dataframes, titles):
-#     umap_and_tsne_plotter(dataframe, title)
-
-umap_and_tsne_plotter(new_df3, "SESNe")
+for (dataframe, title) in zip(dataframes, titles):
+    umap_and_tsne_plotter(dataframe, title)

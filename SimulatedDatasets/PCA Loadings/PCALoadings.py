@@ -46,7 +46,7 @@ def PCALoadingswithParametersPlot(df):
 
     for i in range(2):
         for j in range(7):
-            vec = axes[i].quiver(*origin, data[j, 0], data[j, 1], color=colors[j], scale=4, zorder=100)
+            vec = axes[i].quiver(*origin, data[j, 0], data[j, 1], color=colors[j], scale=5, zorder=100)
             vectors.append(vec)
         legend = axes[i].legend(vectors, labels, loc='upper left')
         axes[i].add_artist(legend)
@@ -60,6 +60,35 @@ def PCALoadingswithParametersPlot(df):
     plt.savefig("PCA Loadings with Parameters.jpg")
     plt.show()
 
+def PCALoadingWithParametersForEachDataset(dataframe, title, k, scaling):
+    pca = PCA(n_components=2)
+    dataset = pca.fit_transform(dataframe.to_numpy()[:, 1:8])
+    data = pca.components_.T * np.sqrt(pca.explained_variance_)
+
+    labels = ['g', 'r', 'i', 'z', 'g-r', 'r-i', 'i-z']
+    colors = ['green', 'red', 'crimson', 'black', 'magenta', 'gray', 'purple']
+
+    sns.scatterplot(data=dataset, x=dataset[:, 0], y=dataset[:, 1], hue=dataframe.to_numpy()[:, 8], ax=axes[0][k])
+    axes[0][k].set_title(title + ": Supernovae types")
+
+    sns.scatterplot(data=dataset, x=dataset[:, 0], y=dataset[:, 1], hue=dataframe.to_numpy()[:, 0], ax=axes[1][k])
+    axes[1][k].set_title(title + ": Days after explosion")
+
+    origin = [0, 0]
+    vectors = []
+
+    for i in range(2):
+        for j in range(7):
+            vec = axes[i][k].quiver(*origin, data[j, 0], data[j, 1], color=colors[j], scale=scaling, zorder=100)
+            vectors.append(vec)
+        legend = axes[i][k].legend(vectors, labels, loc='upper left')
+        axes[i][k].add_artist(legend)
+        axes[i][k].set_xlim(-10, 28)
+        axes[i][k].set_ylim(-10, 15)
+        axes[i][k].axhline(0, color='black')
+        axes[i][k].axvline(0, color='black')
+        axes[i][k].legend(loc='upper right')
+
 
 new_df1 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_CC_modified.csv", index_col=0)
 new_df2 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_Ia_modified.csv", index_col=0)
@@ -67,12 +96,12 @@ new_df3 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_SESNe_modified.csv", 
 
 dataframes = [new_df1, new_df2, new_df3]
 titles = ["Core Collapse", "Type Ia", "Striped Envelope"]
-scalings = [3, 5, 4.5]
+scalings1 = [3, 5, 4.5]
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(12, 6))
 
 for i in range(len(dataframes)):
-    PCALoadingsPlotter(dataframes[i], titles[i], scalings[i], i)
+    PCALoadingsPlotter(dataframes[i], titles[i], scalings1[i], i)
 
 plt.tight_layout()
 plt.savefig("PCA Loadings for each dataset")
@@ -80,3 +109,14 @@ plt.show()
 
 final_df = pd.concat([new_df1, new_df2, new_df3])
 PCALoadingswithParametersPlot(final_df)
+
+figure, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
+scalings2 = [3, 5, 4.5]
+
+for i in range(3):
+    PCALoadingWithParametersForEachDataset(dataframes[i], titles[i], i, scalings2[i])
+
+plt.suptitle("PCA Loadings for each dataset with Parameters")
+plt.tight_layout()
+plt.savefig("PCA Loadings for each dataset with Parameters.jpg")
+plt.show()
