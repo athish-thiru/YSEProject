@@ -5,3 +5,4 @@ Performed some initial Analysis by looking at variation in magnitude and color a
 Performed PCA and created Confusion Matrices using the SVM RBF classifiers.
 Created Correlation matrices.
 Also Looking at dimensionality reduction.
+Computed PCA Loadings with the entire datasets.
