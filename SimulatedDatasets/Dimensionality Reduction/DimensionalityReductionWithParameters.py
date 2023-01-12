@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import umap
 from sklearn.manifold import TSNE
 import seaborn as sns
+import pickle
 
 new_df1 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_CC_modified.csv", index_col=0)
 new_df2 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_Ia_modified.csv", index_col=0)
@@ -11,20 +12,24 @@ new_df3 = pd.read_csv("/Users/athish/Coding/YSEProject/LCs_SESNe_modified.csv", 
 
 
 def tsne_embedder(data, perplexity, rate):
-    method = TSNE(n_components=2, learning_rate=rate, perplexity=perplexity)
+    method = TSNE(n_components=2, learning_rate=rate, perplexity=perplexity, random_state=42)
     X = data[:, 1:8].astype('float')
     label = data[:, 0].astype('float')
     X_embedded = method.fit_transform(X)
     X_embedded = np.append(label.reshape((np.shape(data)[0], 1)), X_embedded, axis=1)
+    pickle.dump(method, open("TSNE_perplexity=" + str(perplexity) + "_learning_rate=" + str(rate), 'wb'))
+    print("TSNE_perplexity=" + str(perplexity) + "_learning_rate=" + str(rate) + " done")
     return X_embedded
 
 
 def umap_embedder(data,n_neighbours, min_dist):
-    method = umap.UMAP(n_neighbors=n_neighbours, min_dist=min_dist)
+    method = umap.UMAP(n_neighbors=n_neighbours, min_dist=min_dist, random_state=42)
     X = data[:, 1:8].astype('float')
     label = data[:, 0].astype('float')
     X_embedded = method.fit_transform(X)
     X_embedded = np.append(label.reshape((np.shape(data)[0], 1)), X_embedded, axis=1)
+    pickle.dump(method, open("UMAP_n_neighbours=" + str(n_neighbours) + "_min_dist=" + str(min_dist), 'wb'))
+    print("UMAP_n_neighbours=" + str(n_neighbours) + "_min_dist=" + str(min_dist) + " done")
     return X_embedded
 
 
@@ -47,6 +52,7 @@ def umap_and_tsne_plotter(new_df, title):
 
     plt.suptitle("TSNE on " + title + " dataset with Learning Rate variation")
     plt.savefig("TSNE on " + title + " dataset with Learning Rate variation.jpg")
+    print("TSNE on " + title + " dataset with Learning Rate variation done")
 
     fig, ax = plt.subplots(ncols=3, nrows=2, figsize=(12, 10))
     for i in range(2):
@@ -58,6 +64,7 @@ def umap_and_tsne_plotter(new_df, title):
             ax[i][j].set_title("Perplexity: {}".format(perplexities[(3*i) + j]))
     plt.suptitle("TSNE on " + title + " dataset with Perplexity variation")
     plt.savefig("TSNE on " + title + " dataset with Perplexity variation.jpg")
+    print("TSNE on " + title + " dataset with Perplexity variation done")
 
     fig, ax = plt.subplots(ncols=3, nrows=2, figsize=(12, 10))
     for i in range(2):
